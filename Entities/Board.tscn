@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://cpfnswqmww3j7"]
+
+[ext_resource type="Script" path="res://Scripts/UI/BoardUI.cs" id="1_eadke"]
+
+[node name="Board" type="Node2D"]
+script = ExtResource("1_eadke")
+ColorLightSquares = Color(0.933333, 0.933333, 0.823529, 1)
+ColorDarkSquares = Color(0.462745, 0.588235, 0.337255, 1)

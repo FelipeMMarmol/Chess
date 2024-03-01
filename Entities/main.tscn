@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://dt8lfjbxspg1r"]
+
+[ext_resource type="PackedScene" uid="uid://cpfnswqmww3j7" path="res://Entities/Board.tscn" id="1_4m0eh"]
+[ext_resource type="Script" path="res://Scripts/UI/Debug/DebugLabel.cs" id="2_und27"]
+
+[node name="Main" type="Node2D"]
+
+[node name="Board" parent="." instance=ExtResource("1_4m0eh")]
+
+[node name="Label" type="Label" parent="."]
+offset_right = 40.0
+offset_bottom = 23.0
+script = ExtResource("2_und27")
