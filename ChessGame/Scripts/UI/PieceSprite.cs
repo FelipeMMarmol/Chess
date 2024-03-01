@@ -13,7 +13,6 @@ public partial class PieceSprite : Sprite2D
 	private static string _imageString;
 	private static readonly Image _image = new();
 
-	private Vector2 _positionDifference;
 	private bool _selected = false;
 	private bool _holding = false;
 
@@ -27,7 +26,7 @@ public partial class PieceSprite : Sprite2D
     {
         if (_holding)
 		{
-			Position = GetGlobalMousePosition() + _positionDifference;
+			Position = GetGlobalMousePosition() - Vector2.One * _pieceScale *_originalPixelSize/2;
 		}
     }
 
@@ -89,17 +88,19 @@ public partial class PieceSprite : Sprite2D
 	
 	public void OnHitboxInputEvent(Node viewport, InputEvent @event, int shapeIdx)
 	{
+		Label label = GetNode<Label>("Label");
 		if (Input.IsActionJustPressed("Click"))
 		{
 			if (!_selected)
 			{
 				_selected = true;
 				_holding = true;
-				_positionDifference = BoardUI.GetPositionFromSquare(BoardPosition) - GetGlobalMousePosition();
+				label.Text = "True";
 			}
 			else
 			{
 				_selected = false;
+				label.Text = "False";
 			}
 		}
 		else if (Input.IsActionJustReleased("Click"))
