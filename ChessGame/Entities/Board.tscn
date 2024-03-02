@@ -1,8 +1,17 @@
-[gd_scene load_steps=2 format=3 uid="uid://cpfnswqmww3j7"]
+[gd_scene load_steps=3 format=3 uid="uid://cpfnswqmww3j7"]
 
-[ext_resource type="Script" path="res://Scripts/UI/BoardUI.cs" id="1_eadke"]
+[ext_resource type="Script" path="res://Scripts/Game/UI/BoardUI.cs" id="1_eadke"]
+[ext_resource type="Script" path="res://Scripts/Game/Player/Player.cs" id="2_8k7m7"]
 
 [node name="Board" type="Node2D"]
 script = ExtResource("1_eadke")
 ColorLightSquares = Color(0.933333, 0.933333, 0.823529, 1)
 ColorDarkSquares = Color(0.462745, 0.588235, 0.337255, 1)
+ColorHighlight = Color(0.72549, 0.792157, 0.337255, 1)
+
+[node name="White" type="Node2D" parent="."]
+script = ExtResource("2_8k7m7")
+Human = true
+
+[node name="Black" type="Node2D" parent="."]
+script = ExtResource("2_8k7m7")

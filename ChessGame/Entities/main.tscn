@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://dt8lfjbxspg1r"]
 
 [ext_resource type="PackedScene" uid="uid://cpfnswqmww3j7" path="res://Entities/Board.tscn" id="1_4m0eh"]
-[ext_resource type="Script" path="res://Scripts/UI/Debug/DebugLabel.cs" id="2_und27"]
+[ext_resource type="Script" path="res://Scripts/Debug/DebugLabel.cs" id="2_und27"]
 
 [node name="Main" type="Node2D"]
 

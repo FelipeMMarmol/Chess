@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://bow3g5farx0b3"]
 
-[ext_resource type="Script" path="res://Scripts/UI/PieceSprite.cs" id="2_e6vwl"]
+[ext_resource type="Script" path="res://Scripts/Game/UI/PieceSprite.cs" id="2_e6vwl"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wm1d2"]
 size = Vector2(45, 45)

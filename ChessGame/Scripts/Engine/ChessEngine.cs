@@ -1,12 +1,13 @@
 using System.Collections.Generic;
+using System.Text;
 
-namespace Game;
+namespace Game.Engine;
 
-public class Board
+public static class Board
 {
     public static Piece[] Square {set; get;}
 
-    public Board()
+    public static void InitializeBoard()
     {
         Square = new Piece[64];
 
@@ -14,7 +15,7 @@ public class Board
         LoadFENPosition(StartPosition);
     }
 
-    public void LoadFENPosition(string FEN)
+    public static void LoadFENPosition(string FEN)
     {
         var PieceSymbol = new Dictionary<char, PieceType>
         {
@@ -50,5 +51,53 @@ public class Board
                 cell ++;
             }
         }
+    }
+
+    public static string GenerateFEN()
+    {
+        StringBuilder fenBuilder = new();
+
+        int blankSpaces = 0;
+        for (int i = 0; i < 64; i++)
+        {
+            Piece piece = Square[i];
+
+            if (i % 8 == 0 && i > 0)
+            {
+                if (blankSpaces > 0)
+                {
+                    fenBuilder.Append(blankSpaces);
+                    blankSpaces = 0;
+                }
+                fenBuilder.Append('/');
+            }
+
+            if (piece.Type != PieceType.Empty)
+            {
+                if (blankSpaces > 0)
+                {
+                    fenBuilder.Append(blankSpaces);
+                    blankSpaces = 0;
+                }
+                fenBuilder.Append(piece);
+            }
+            else
+            {
+                blankSpaces++;
+            }
+        }
+
+        // Handle any remaining blank spaces at the end of the rank
+        if (blankSpaces > 0)
+        {
+            fenBuilder.Append(blankSpaces);
+        }
+
+        return fenBuilder.ToString();
+    }
+
+    public static void OnPieceClicked()
+    {
+        
     }
 }

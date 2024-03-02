@@ -1,6 +1,7 @@
 using System;
+using System.Collections.Generic;
 
-namespace Game;
+namespace Game.Engine;
 
 [Flags]
 public enum PieceType
@@ -30,5 +31,23 @@ public struct Piece
     {
         Type = type;
         Color = color;
+    }
+
+    static readonly Dictionary<PieceType, char> PieceSymbol = new()
+    {
+        [PieceType.Empty] = ' ',
+        [PieceType.Pawn] = 'p',
+        [PieceType.Knight] = 'n',
+        [PieceType.Bishop] = 'b',
+        [PieceType.Rook] = 'r',
+        [PieceType.Queen] = 'q',
+        [PieceType.King] = 'k',
+    };
+
+    public override readonly string ToString()
+    {
+        char pieceChar = Color == PieceColor.White ? char.ToUpper(PieceSymbol[Type]) : PieceSymbol[Type];
+
+        return pieceChar.ToString();
     }
 }

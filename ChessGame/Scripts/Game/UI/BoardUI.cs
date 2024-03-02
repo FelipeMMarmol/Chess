@@ -1,4 +1,5 @@
 using Godot;
+using Game.Engine;
 
 namespace Game;
 
@@ -9,16 +10,19 @@ public partial class BoardUI : Node2D
 	[Export] Color ColorDarkSquares;
 	[Export] Color ColorHighlight;
 	
-	public static float SquareSize {set; get;} = 64;
+	public static float SquareSize {set; get;}
 	public static float XOffset {set; get;}
+	public static bool WhiteSide {set; get;} = true;
 
-	public Board board = new();
+	private static int _selectedSquare = -1;
 
-	private PackedScene pieceScene;
+	private PackedScene _pieceScene;
 
     public override void _Ready()
     {
-        pieceScene = GD.Load<PackedScene>("res://Entities/Piece.tscn");
+		Board.InitializeBoard();
+
+        _pieceScene = GD.Load<PackedScene>("res://Entities/Piece.tscn");
 		StartBoard();
     }
 
@@ -30,9 +34,12 @@ public partial class BoardUI : Node2D
 		
 		foreach (var child in GetChildren())
 		{
-			if (child is PieceSprite pieceSprite)
+			foreach (var childPiece in child.GetChildren())
 			{
-				pieceSprite.DrawPiece();
+				if (childPiece is PieceSprite pieceSprite)
+				{
+					pieceSprite.DrawPiece();
+				}
 			}
 		}
     }
@@ -42,6 +49,12 @@ public partial class BoardUI : Node2D
 		float xPosition = square%8 * SquareSize + XOffset;
 		float yPosition = (1 + square/8) * SquareSize;
 
+		if (!WhiteSide)
+		{
+			xPosition = SquareSize * (7 - square%8) + XOffset;
+			yPosition = SquareSize * 9 - yPosition;		
+		}
+
 		return new(xPosition, yPosition);
 	}
 
@@ -50,9 +63,15 @@ public partial class BoardUI : Node2D
 		int row = (int)((position.X - XOffset)/SquareSize);
 		int rank = (int)(position.Y/SquareSize - 1);
 
+		if (!WhiteSide)
+		{
+			return 63 - row - rank*8;
+		}
+
 		return row + rank*8;
 	}
 
+	// Draws board squares
 	private void DrawBoard()
 	{
 		SquareSize = GetViewportRect().Size.Y / 10;
@@ -63,8 +82,16 @@ public partial class BoardUI : Node2D
 			float xPosition = i%8 * SquareSize + XOffset;
 			float yPosition = (1 + i/8) * SquareSize;
 
-			bool lightSquare = (i%8 + i/8)%2 == 0;
-			Color squareColor = lightSquare ? ColorLightSquares : ColorDarkSquares;
+			Color squareColor;
+			if (i != _selectedSquare)
+			{
+				bool lightSquare = (i%8 + i/8)%2 == 0;
+				squareColor = lightSquare ? ColorLightSquares : ColorDarkSquares;
+			}
+			else
+			{
+				squareColor = ColorHighlight;
+			}
 
 			DrawRect(new Rect2(xPosition, yPosition, SquareSize, SquareSize), squareColor);
 		}
@@ -72,17 +99,34 @@ public partial class BoardUI : Node2D
 
 	private void StartBoard()
 	{
+		var white = GetNode<Player>("White");
+		var black = GetNode<Player>("Black");
+
+		PieceSprite.BoardUINode = GetNode<BoardUI>(this.GetPath());
+
 		for (int i = 0; i < 64; i ++)
 		{
 			Piece piece = Board.Square[i]; 
 			if (piece.Type != PieceType.Empty)
 			{
-				PieceSprite pieceInstance = pieceScene.Instantiate<PieceSprite>();
+				PieceSprite pieceInstance = _pieceScene.Instantiate<PieceSprite>();
 				pieceInstance.PieceData = piece;
 				pieceInstance.BoardPosition = i;
 
-				AddChild(pieceInstance);
+				if (piece.Color == PieceColor.White)
+				{
+					white.AddChild(pieceInstance);
+					continue;
+				}
+				
+				black.AddChild(pieceInstance);
 			}
 		}
+	}
+
+	public void OnPieceClicked(int boardPosition)
+	{
+		_selectedSquare = boardPosition;
+		QueueRedraw();
 	}
 }

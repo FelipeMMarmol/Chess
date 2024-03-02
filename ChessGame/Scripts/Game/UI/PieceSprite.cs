@@ -1,4 +1,5 @@
 using Godot;
+using Game.Engine;
 
 namespace Game;
 
@@ -6,20 +7,25 @@ public partial class PieceSprite : Sprite2D
 {
 	public int BoardPosition {set; get;}
 	public Piece PieceData {set; get;}
+	public static BoardUI BoardUINode {set; get;}
 
 	private static readonly float _originalPixelSize = 45f;
 	private static float _pieceScale = 1f;
-
 	private static string _imageString;
 	private static readonly Image _image = new();
 
 	private bool _selected = false;
 	private bool _holding = false;
 
+	public delegate void OnPieceClickedEventHandler(int boardPosition);
+	public event OnPieceClickedEventHandler ClickEvent;
+
     public override void _Ready()
     {
         using var file = FileAccess.Open("res://Assets/Chess_Pieces_Sprite.svg", FileAccess.ModeFlags.Read);
 		_imageString = file.GetAsText();
+		
+		ClickEvent += BoardUINode.OnPieceClicked;
     }
 
     public override void _Process(double delta)
@@ -91,23 +97,19 @@ public partial class PieceSprite : Sprite2D
 		Label label = GetNode<Label>("Label");
 		if (Input.IsActionJustPressed("Click"))
 		{
-			if (!_selected)
-			{
-				_selected = true;
-				_holding = true;
-				label.Text = "True";
-			}
-			else
-			{
-				_selected = false;
-				label.Text = "False";
-			}
+			_holding = true;
+			ClickEvent.Invoke(BoardPosition);
 		}
 		else if (Input.IsActionJustReleased("Click"))
 		{
+			// HACK
+			Board.Square[BoardPosition] = new();
+
 			_holding = false;
 			BoardPosition = BoardUI.GetSquareFromPosition(GetGlobalMousePosition());
 			Position = BoardUI.GetPositionFromSquare(BoardPosition);
+
+			Board.Square[BoardPosition] = PieceData;
 		}
 	}
 }
