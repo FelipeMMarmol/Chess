@@ -1,0 +1,14 @@
+[gd_scene load_steps=4 format=3 uid="uid://bxqjm2wlef8h8"]
+
+[ext_resource type="AudioStream" uid="uid://dosj43cbdifag" path="res://Assets/Sounds/Move.mp3" id="1_6c5is"]
+[ext_resource type="Script" path="res://Scripts/Game/Other/SoundHandler.cs" id="1_g0x4m"]
+[ext_resource type="AudioStream" uid="uid://dwl8bugt22di8" path="res://Assets/Sounds/Capture.mp3" id="2_2h378"]
+
+[node name="AudioHandler" type="Node"]
+script = ExtResource("1_g0x4m")
+
+[node name="Move" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("1_6c5is")
+
+[node name="Capture" type="AudioStreamPlayer2D" parent="."]
+stream = ExtResource("2_2h378")

@@ -1,26 +1,33 @@
 using Godot;
 using Game.Engine;
+using System.Collections.Generic;
 
 namespace Game;
 
 public partial class BoardUI : Node2D
 {
 	[ExportGroup("Board Style", "Color")]
-	[Export] Color ColorLightSquares;
-	[Export] Color ColorDarkSquares;
-	[Export] Color ColorHighlight;
+	[Export] Color ColorLightSquares {set; get;} 
+	[Export] Color ColorDarkSquares {set; get;} 
+	[Export] Color ColorHighlight {set; get;} 
+	[Export] Color ColorLastMove {set; get;} 
 	
 	public static float SquareSize {set; get;}
 	public static float XOffset {set; get;}
 	public static bool WhiteSide {set; get;} = true;
 
-	private static int _selectedSquare = -1;
+	private BoardOverlay boardOverlay;
 
 	private PackedScene _pieceScene;
+	private readonly Dictionary<int, PieceSprite> _pieces = new();
 
     public override void _Ready()
     {
 		Board.InitializeBoard();
+
+		boardOverlay = GetNode<BoardOverlay>("BoardOverlay");
+		boardOverlay.ColorHighlight = ColorHighlight;
+		boardOverlay.ColorLastMove = ColorLastMove;
 
         _pieceScene = GD.Load<PackedScene>("res://Entities/Piece.tscn");
 		StartBoard();
@@ -82,27 +89,18 @@ public partial class BoardUI : Node2D
 			float xPosition = i%8 * SquareSize + XOffset;
 			float yPosition = (1 + i/8) * SquareSize;
 
-			Color squareColor;
-			if (i != _selectedSquare)
-			{
-				bool lightSquare = (i%8 + i/8)%2 == 0;
-				squareColor = lightSquare ? ColorLightSquares : ColorDarkSquares;
-			}
-			else
-			{
-				squareColor = ColorHighlight;
-			}
-
+			bool lightSquare = (i%8 + i/8)%2 == 0;
+			Color squareColor = lightSquare ? ColorLightSquares : ColorDarkSquares;
+			
 			DrawRect(new Rect2(xPosition, yPosition, SquareSize, SquareSize), squareColor);
 		}
 	}
 
+	// Initializes board and instantiates the pieces
 	private void StartBoard()
 	{
 		var white = GetNode<Player>("White");
 		var black = GetNode<Player>("Black");
-
-		PieceSprite.BoardUINode = GetNode<BoardUI>(this.GetPath());
 
 		for (int i = 0; i < 64; i ++)
 		{
@@ -112,6 +110,11 @@ public partial class BoardUI : Node2D
 				PieceSprite pieceInstance = _pieceScene.Instantiate<PieceSprite>();
 				pieceInstance.PieceData = piece;
 				pieceInstance.BoardPosition = i;
+
+				pieceInstance.ClickEvent += OnPieceClicked;
+				pieceInstance.MoveEvent += OnPieceMoved;
+
+				_pieces.Add(i, pieceInstance);
 
 				if (piece.Color == PieceColor.White)
 				{
@@ -126,7 +129,31 @@ public partial class BoardUI : Node2D
 
 	public void OnPieceClicked(int boardPosition)
 	{
-		_selectedSquare = boardPosition;
-		QueueRedraw();
+		boardOverlay.SelectedSquare = boardPosition;
+		boardOverlay.QueueRedraw();
+	}
+
+	public void OnPieceMoved(int from, int to)
+	{
+		Board.MovePiece(from, to);
+
+		if (_pieces.ContainsKey(to))
+		{
+			_pieces[to].QueueFree();
+			_pieces[to] = _pieces[from];
+			Other.SoundHandler.PlayCaptureSound();
+		}
+		else
+		{
+			_pieces.Add(to, _pieces[from]);
+			Other.SoundHandler.PlayMoveSound();
+		}
+
+		_pieces.Remove(from);
+
+		boardOverlay.MoveFromSquare = from;
+		boardOverlay.MoveToSquare = to;
+		boardOverlay.SelectedSquare = -1;
+		boardOverlay.QueueRedraw();
 	}
 }

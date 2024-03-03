@@ -7,7 +7,6 @@ public partial class PieceSprite : Sprite2D
 {
 	public int BoardPosition {set; get;}
 	public Piece PieceData {set; get;}
-	public static BoardUI BoardUINode {set; get;}
 
 	private static readonly float _originalPixelSize = 45f;
 	private static float _pieceScale = 1f;
@@ -20,12 +19,13 @@ public partial class PieceSprite : Sprite2D
 	public delegate void OnPieceClickedEventHandler(int boardPosition);
 	public event OnPieceClickedEventHandler ClickEvent;
 
+	public delegate void OnPieceMovedEventHandler(int from, int to);
+	public event OnPieceMovedEventHandler MoveEvent;
+
     public override void _Ready()
     {
-        using var file = FileAccess.Open("res://Assets/Chess_Pieces_Sprite.svg", FileAccess.ModeFlags.Read);
+        using var file = FileAccess.Open("res://Assets/Graphics/Chess_Pieces_Sprite.svg", FileAccess.ModeFlags.Read);
 		_imageString = file.GetAsText();
-		
-		ClickEvent += BoardUINode.OnPieceClicked;
     }
 
     public override void _Process(double delta)
@@ -45,6 +45,7 @@ public partial class PieceSprite : Sprite2D
 		UpdateHitbox();
 	}
 
+	// Updates SVG when size changes
 	public static void UpdateSVGTexture()
 	{
 		if (_pieceScale != BoardUI.SquareSize/_originalPixelSize)
@@ -54,6 +55,7 @@ public partial class PieceSprite : Sprite2D
 		}
 	}
 
+	// Returns the correct frame (sprite) corresponding to the piece
 	private int GetFrame()
 	{
 		int frame = 0;
@@ -98,18 +100,34 @@ public partial class PieceSprite : Sprite2D
 		if (Input.IsActionJustPressed("Click"))
 		{
 			_holding = true;
+			ZIndex = 2;
 			ClickEvent.Invoke(BoardPosition);
+
+			GetViewport().SetInputAsHandled();
 		}
-		else if (Input.IsActionJustReleased("Click"))
+		else if (Input.IsActionJustReleased("Click") && _holding)
 		{
 			// HACK
-			Board.Square[BoardPosition] = new();
 
-			_holding = false;
-			BoardPosition = BoardUI.GetSquareFromPosition(GetGlobalMousePosition());
+			int newSquare = BoardUI.GetSquareFromPosition(GetGlobalMousePosition());
+
+			if (BoardPosition != newSquare)
+			{
+				MoveEvent.Invoke(BoardPosition, newSquare);
+
+				Board.Square[BoardPosition] = new();
+
+				BoardPosition = newSquare;
+				
+				Board.Square[BoardPosition] = PieceData;
+
+			}
+			
 			Position = BoardUI.GetPositionFromSquare(BoardPosition);
+			_holding = false;
+			ZIndex = 1;
 
-			Board.Square[BoardPosition] = PieceData;
+			GetViewport().SetInputAsHandled();
 		}
 	}
 }

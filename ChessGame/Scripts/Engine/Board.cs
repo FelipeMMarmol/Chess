@@ -96,8 +96,10 @@ public static class Board
         return fenBuilder.ToString();
     }
 
-    public static void OnPieceClicked()
+
+    public static void MovePiece(int fromSquare, int toSquare)
     {
-        
+        Square[toSquare] = Square[fromSquare];
+        Square[fromSquare] = default;
     }
 }

@@ -6,6 +6,7 @@
 size = Vector2(45, 45)
 
 [node name="Piece" type="Sprite2D"]
+z_index = 1
 texture_filter = 1
 centered = false
 hframes = 6

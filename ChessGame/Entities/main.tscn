@@ -1,11 +1,15 @@
-[gd_scene load_steps=3 format=3 uid="uid://dt8lfjbxspg1r"]
+[gd_scene load_steps=4 format=3 uid="uid://dt8lfjbxspg1r"]
 
 [ext_resource type="PackedScene" uid="uid://cpfnswqmww3j7" path="res://Entities/Board.tscn" id="1_4m0eh"]
+[ext_resource type="PackedScene" uid="uid://bxqjm2wlef8h8" path="res://Entities/AudioHandler.tscn" id="1_q5y2g"]
 [ext_resource type="Script" path="res://Scripts/Debug/DebugLabel.cs" id="2_und27"]
 
 [node name="Main" type="Node2D"]
 
+[node name="AudioHandler" parent="." instance=ExtResource("1_q5y2g")]
+
 [node name="Board" parent="." instance=ExtResource("1_4m0eh")]
+ColorHighlight = Color(0.533333, 0.411765, 0.968627, 1)
 
 [node name="Label" type="Label" parent="."]
 offset_right = 40.0
