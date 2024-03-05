@@ -3,9 +3,13 @@ using System.Text;
 
 namespace Game.Engine;
 
+// Handles the game, it contains the current state of the game and contains methods
+// to move and capture pieces.
+
 public static class Board
 {
     public static Piece[] Square {set; get;}
+    public static bool IsWhitePlaying {set; get;} = true;
 
     public static void InitializeBoard()
     {
@@ -13,6 +17,12 @@ public static class Board
 
         string StartPosition = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
         LoadFENPosition(StartPosition);
+    }
+
+    public static void MovePiece(int fromSquare, int toSquare)
+    {
+        Square[toSquare] = Square[fromSquare];
+        Square[fromSquare] = default;
     }
 
     public static void LoadFENPosition(string FEN)
@@ -94,12 +104,5 @@ public static class Board
         }
 
         return fenBuilder.ToString();
-    }
-
-
-    public static void MovePiece(int fromSquare, int toSquare)
-    {
-        Square[toSquare] = Square[fromSquare];
-        Square[fromSquare] = default;
     }
 }

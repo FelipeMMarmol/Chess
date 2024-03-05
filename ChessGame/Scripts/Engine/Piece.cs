@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace Game.Engine;
 
 [Flags]
-public enum PieceType
+public enum PieceType : byte
 {
     Empty = 0,
     Pawn = 1,
@@ -16,7 +16,7 @@ public enum PieceType
 }
 
 [Flags]
-public enum PieceColor
+public enum PieceColor : byte
 {
     White = 0,
     Black = 1

@@ -17,6 +17,11 @@ script = ExtResource("2_lrfua")
 [node name="White" type="Node2D" parent="."]
 script = ExtResource("2_8k7m7")
 Human = true
+White = true
 
 [node name="Black" type="Node2D" parent="."]
 script = ExtResource("2_8k7m7")
+
+[node name="ClickTimer" type="Timer" parent="."]
+wait_time = 0.1
+one_shot = true

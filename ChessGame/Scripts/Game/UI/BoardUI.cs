@@ -16,7 +16,8 @@ public partial class BoardUI : Node2D
 	public static float XOffset {set; get;}
 	public static bool WhiteSide {set; get;} = true;
 
-	private BoardOverlay boardOverlay;
+	private BoardOverlay _boardOverlay;
+	private Timer _clickTimer;
 
 	private PackedScene _pieceScene;
 	private readonly Dictionary<int, PieceSprite> _pieces = new();
@@ -25,9 +26,13 @@ public partial class BoardUI : Node2D
     {
 		Board.InitializeBoard();
 
-		boardOverlay = GetNode<BoardOverlay>("BoardOverlay");
-		boardOverlay.ColorHighlight = ColorHighlight;
-		boardOverlay.ColorLastMove = ColorLastMove;
+		_boardOverlay = GetNode<BoardOverlay>("BoardOverlay");
+		_boardOverlay.ColorHighlight = ColorHighlight;
+		_boardOverlay.ColorLastMove = ColorLastMove;
+
+		_clickTimer = GetNode<Timer>("ClickTimer");
+
+		SetPlayerType();
 
         _pieceScene = GD.Load<PackedScene>("res://Entities/Piece.tscn");
 		StartBoard();
@@ -50,6 +55,20 @@ public partial class BoardUI : Node2D
 			}
 		}
     }
+
+	public override void _UnhandledInput(InputEvent @event)
+    {
+        CallDeferred(MethodName.ClickedEmptySquare);
+    }
+
+	private void ClickedEmptySquare()
+	{
+		if (!GetViewport().IsInputHandled() && Input.IsActionJustPressed("Click"))
+		{
+			_boardOverlay.SelectedSquare = -1;
+			_boardOverlay.QueueRedraw();
+		}
+	}
 
 	public static Vector2 GetPositionFromSquare(int square)
 	{
@@ -78,6 +97,20 @@ public partial class BoardUI : Node2D
 		return row + rank*8;
 	}
 
+	// Sets whether player is a human or ai
+	private void SetPlayerType()
+	{
+		SetPlayerType("White");
+		SetPlayerType("Black");
+	}
+
+	private void SetPlayerType(string playerColor)
+	{
+		var player = GetNode<Player>(playerColor);
+		var scriptPath = $"res://Scripts/Game/Player/{(player.Human ? "Human" : "AI")}.cs";
+		player.SetScript(scriptPath);
+	}
+
 	// Draws board squares
 	private void DrawBoard()
 	{
@@ -99,8 +132,8 @@ public partial class BoardUI : Node2D
 	// Initializes board and instantiates the pieces
 	private void StartBoard()
 	{
-		var white = GetNode<Player>("White");
-		var black = GetNode<Player>("Black");
+		var white = GetNode("White");
+		var black = GetNode("Black");
 
 		for (int i = 0; i < 64; i ++)
 		{
@@ -125,12 +158,24 @@ public partial class BoardUI : Node2D
 				black.AddChild(pieceInstance);
 			}
 		}
+
+		GD.Print(white.GetScript().ToString());
+		GD.Print(black.GetScript().ToString());
 	}
 
+	// Handles piece selection, has a timer to avoid multiple clicks
 	public void OnPieceClicked(int boardPosition)
 	{
-		boardOverlay.SelectedSquare = boardPosition;
-		boardOverlay.QueueRedraw();
+		if (_clickTimer.IsStopped())
+		{
+			if (_boardOverlay.SelectedSquare == boardPosition)
+				_boardOverlay.SelectedSquare = -1;
+			else
+				_boardOverlay.SelectedSquare = boardPosition;
+
+			_boardOverlay.QueueRedraw();
+			_clickTimer.Start();
+		}
 	}
 
 	public void OnPieceMoved(int from, int to)
@@ -151,9 +196,9 @@ public partial class BoardUI : Node2D
 
 		_pieces.Remove(from);
 
-		boardOverlay.MoveFromSquare = from;
-		boardOverlay.MoveToSquare = to;
-		boardOverlay.SelectedSquare = -1;
-		boardOverlay.QueueRedraw();
+		_boardOverlay.MoveFromSquare = from;
+		_boardOverlay.MoveToSquare = to;
+		_boardOverlay.SelectedSquare = -1;
+		_boardOverlay.QueueRedraw();
 	}
 }

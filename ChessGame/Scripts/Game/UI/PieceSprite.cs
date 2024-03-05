@@ -94,6 +94,7 @@ public partial class PieceSprite : Sprite2D
 		hitbox.Position = scale*_originalPixelSize/2;
 	}
 	
+	// Handles selecting and grabbing events
 	public void OnHitboxInputEvent(Node viewport, InputEvent @event, int shapeIdx)
 	{
 		Label label = GetNode<Label>("Label");
@@ -107,20 +108,12 @@ public partial class PieceSprite : Sprite2D
 		}
 		else if (Input.IsActionJustReleased("Click") && _holding)
 		{
-			// HACK
-
 			int newSquare = BoardUI.GetSquareFromPosition(GetGlobalMousePosition());
 
 			if (BoardPosition != newSquare)
 			{
 				MoveEvent.Invoke(BoardPosition, newSquare);
-
-				Board.Square[BoardPosition] = new();
-
 				BoardPosition = newSquare;
-				
-				Board.Square[BoardPosition] = PieceData;
-
 			}
 			
 			Position = BoardUI.GetPositionFromSquare(BoardPosition);

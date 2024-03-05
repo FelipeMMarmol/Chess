@@ -9,7 +9,6 @@
 [node name="AudioHandler" parent="." instance=ExtResource("1_q5y2g")]
 
 [node name="Board" parent="." instance=ExtResource("1_4m0eh")]
-ColorHighlight = Color(0.533333, 0.411765, 0.968627, 1)
 
 [node name="Label" type="Label" parent="."]
 offset_right = 40.0
